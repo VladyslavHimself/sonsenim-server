@@ -26,4 +26,6 @@ public interface CardsRepository extends JpaRepository<Card, Long> {
     @Modifying
     @Query("update Card c set c.nextRepetitionTime = ?1 where c.id = ?2")
     int updateNextRepetitionTimeById(LocalDateTime nextRepetitionTime, Long id);
+
+    long countByDeck_Groups_LocalUser(LocalUser localUser);
 }

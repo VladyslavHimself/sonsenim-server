@@ -10,7 +10,6 @@ import com.sonsenim.sonsenimbackend.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -44,11 +43,5 @@ public class AuthenticationController {
             response.setToken(jwt);
             return ResponseEntity.ok().body(response);
         }
-    }
-
-    @GetMapping("/me")
-    public ResponseEntity<LocalUserDTO> getLoggedInUserProfile(@AuthenticationPrincipal LocalUser user) {
-        LocalUserDTO dto = userService.getUserWithDTO(user.getId());
-        return ResponseEntity.ok(dto);
     }
 }

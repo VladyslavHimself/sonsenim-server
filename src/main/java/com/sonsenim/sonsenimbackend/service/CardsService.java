@@ -64,4 +64,8 @@ public class CardsService {
         Card card = cardsRepository.findByIdAndDeck_IdAndDeck_Groups_LocalUser(cardId, deckId, user);
         cardsRepository.delete(card);
     }
+
+    public long getTotalNumberOfCardsFromGroup(LocalUser user) {
+        return cardsRepository.countByDeck_Groups_LocalUser(user);
+    }
 }
