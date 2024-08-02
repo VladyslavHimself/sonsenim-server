@@ -47,7 +47,7 @@ public class GroupsController {
     @GetMapping("/stats/{groupId}")
     public ResponseEntity<GroupStatisticsDTO> getGroupStatistics(@AuthenticationPrincipal LocalUser user, @PathVariable Long groupId) {
         int totalDecksInGroup = decksService.getUserDecksByGroupId(user, groupId).size();
-        long totalCardsInGroup = cardsService.getTotalNumberOfCardsFromGroup(user);
+        long totalCardsInGroup = cardsService.getTotalNumberOfCardsFromGroup(user, groupId);
 
         GroupStatisticsDTO groupStatisticsDTO = GroupStatisticsMapper.toDTO(totalDecksInGroup, (int) totalCardsInGroup);
 
