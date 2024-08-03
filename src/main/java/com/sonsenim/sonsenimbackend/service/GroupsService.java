@@ -2,9 +2,11 @@ package com.sonsenim.sonsenimbackend.service;
 
 import com.sonsenim.sonsenimbackend.exception.GroupAlreadyExistsException;
 import com.sonsenim.sonsenimbackend.mappers.GroupsMapper;
+import com.sonsenim.sonsenimbackend.mappers.UserGroupInfoMapper;
 import com.sonsenim.sonsenimbackend.model.Groups;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.dto.GroupDTO;
+import com.sonsenim.sonsenimbackend.model.dto.UserGroupInfoDTO;
 import com.sonsenim.sonsenimbackend.repositories.GroupsRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,15 @@ public class GroupsService {
         try {
             List<Groups> groups = groupsRepository.findByLocalUser_Id(userId);
             return GroupsMapper.toGroupsDTO(groups);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<UserGroupInfoDTO> getUserGroupsWithInfo(Long userId) {
+        try {
+            List<Groups> groups = groupsRepository.findByLocalUser_Id(userId);
+            return UserGroupInfoMapper.toUserGroupInfoDTO(groups);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

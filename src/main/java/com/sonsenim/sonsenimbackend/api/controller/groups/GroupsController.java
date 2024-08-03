@@ -5,9 +5,11 @@ import com.sonsenim.sonsenimbackend.mappers.GroupStatisticsMapper;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.dto.GroupDTO;
 import com.sonsenim.sonsenimbackend.model.dto.GroupStatisticsDTO;
+import com.sonsenim.sonsenimbackend.model.dto.UserGroupInfoDTO;
 import com.sonsenim.sonsenimbackend.service.CardsService;
 import com.sonsenim.sonsenimbackend.service.DecksService;
 import com.sonsenim.sonsenimbackend.service.GroupsService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -52,5 +54,16 @@ public class GroupsController {
         GroupStatisticsDTO groupStatisticsDTO = GroupStatisticsMapper.toDTO(totalDecksInGroup, (int) totalCardsInGroup);
 
         return ResponseEntity.ok().body(groupStatisticsDTO);
+    }
+
+    @GetMapping("/user-groups-info")
+    public ResponseEntity<List<UserGroupInfoDTO>> getUserGroupsInfo(@AuthenticationPrincipal LocalUser user) {
+       try {
+           List<UserGroupInfoDTO> groupsWithInfo = groupsService.getUserGroupsWithInfo(user.getId());
+
+           return ResponseEntity.ok().body(groupsWithInfo);
+       } catch (Exception e) {
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+       }
     }
 }
