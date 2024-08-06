@@ -30,6 +30,10 @@ public class GroupsService {
         }
     }
 
+    public long deleteGroup(LocalUser user, Long groupId) {
+        return groupsRepository.deleteByLocalUserAndId(user, groupId);
+    }
+
     public List<UserGroupInfoDTO> getUserGroupsWithInfo(Long userId) {
         try {
             List<Groups> groups = groupsRepository.findByLocalUser_Id(userId);

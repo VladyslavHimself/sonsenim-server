@@ -9,6 +9,7 @@ import com.sonsenim.sonsenimbackend.model.dto.UserGroupInfoDTO;
 import com.sonsenim.sonsenimbackend.service.CardsService;
 import com.sonsenim.sonsenimbackend.service.DecksService;
 import com.sonsenim.sonsenimbackend.service.GroupsService;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -36,10 +37,24 @@ public class GroupsController {
         return ResponseEntity.ok(groups);
     }
 
+
+    // TODO: Delete 'add' in endpoint path
     @PostMapping("/add/{groupName}")
     public List<GroupDTO> addUserGroup(@AuthenticationPrincipal LocalUser user, @PathVariable String groupName) throws GroupAlreadyExistsException {
         groupsService.addNewUserGroup(user, groupName);
         return groupsService.getUserGroups(user.getId());
+    }
+
+    @Transactional
+    @DeleteMapping("/{groupId}")
+    public ResponseEntity deleteUserGroup(@AuthenticationPrincipal LocalUser user, @PathVariable Long groupId) {
+        try {
+            groupsService.deleteGroup(user, groupId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     // 1. view total cards by group +
