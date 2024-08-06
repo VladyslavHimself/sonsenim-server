@@ -1,5 +1,6 @@
 package com.sonsenim.sonsenimbackend.service;
 
+import com.sonsenim.sonsenimbackend.api.model.GroupConfigurationBody;
 import com.sonsenim.sonsenimbackend.exception.GroupAlreadyExistsException;
 import com.sonsenim.sonsenimbackend.mappers.GroupsMapper;
 import com.sonsenim.sonsenimbackend.mappers.UserGroupInfoMapper;
@@ -30,8 +31,16 @@ public class GroupsService {
         }
     }
 
-    public long deleteGroup(LocalUser user, Long groupId) {
+    public long deleteUserGroup(LocalUser user, Long groupId) {
         return groupsRepository.deleteByLocalUserAndId(user, groupId);
+    }
+
+    public GroupDTO editUserGroup(LocalUser user, Long groupId, GroupConfigurationBody groupConfiguration) {
+
+        Groups existingGroup = groupsRepository.findByIdAndLocalUser_Id(groupId, user.getId());
+        existingGroup.setGroupName(groupConfiguration.getGroupName());
+        groupsRepository.save(existingGroup);
+        return GroupsMapper.toDTO(existingGroup);
     }
 
     public List<UserGroupInfoDTO> getUserGroupsWithInfo(Long userId) {

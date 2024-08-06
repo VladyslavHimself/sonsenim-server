@@ -1,5 +1,7 @@
 package com.sonsenim.sonsenimbackend.api.controller.groups;
 
+import com.sonsenim.sonsenimbackend.api.model.DeckConfigurationBody;
+import com.sonsenim.sonsenimbackend.api.model.GroupConfigurationBody;
 import com.sonsenim.sonsenimbackend.exception.GroupAlreadyExistsException;
 import com.sonsenim.sonsenimbackend.mappers.GroupStatisticsMapper;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
@@ -49,10 +51,19 @@ public class GroupsController {
     @DeleteMapping("/{groupId}")
     public ResponseEntity deleteUserGroup(@AuthenticationPrincipal LocalUser user, @PathVariable Long groupId) {
         try {
-            groupsService.deleteGroup(user, groupId);
+            groupsService.deleteUserGroup(user, groupId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PutMapping("/{groupId}")
+    public ResponseEntity<GroupDTO> editUserGroup(@AuthenticationPrincipal LocalUser user, @PathVariable Long groupId, @RequestBody GroupConfigurationBody groupConfiguration) {
+        try {
+            GroupDTO group = groupsService.editUserGroup(user, groupId, groupConfiguration);
+            return ResponseEntity.ok().body(group);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
