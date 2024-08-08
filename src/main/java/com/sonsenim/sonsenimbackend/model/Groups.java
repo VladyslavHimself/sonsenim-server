@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+// TODO: Change name from plural form to single
 @Entity
 @Table(name = "groups")
 public class Groups {

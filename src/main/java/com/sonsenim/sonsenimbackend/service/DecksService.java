@@ -1,10 +1,12 @@
 package com.sonsenim.sonsenimbackend.service;
 
 import com.sonsenim.sonsenimbackend.api.model.DeckConfigurationBody;
+import com.sonsenim.sonsenimbackend.mappers.AggregatedDeckMapper;
 import com.sonsenim.sonsenimbackend.mappers.DecksMapper;
 import com.sonsenim.sonsenimbackend.model.Deck;
 import com.sonsenim.sonsenimbackend.model.Groups;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
+import com.sonsenim.sonsenimbackend.model.dto.AggregatedDeckDTO;
 import com.sonsenim.sonsenimbackend.model.dto.DeckDTO;
 import com.sonsenim.sonsenimbackend.repositories.DecksRepository;
 import org.springframework.stereotype.Service;
@@ -38,5 +40,12 @@ public class DecksService {
         deck.setRandomizedOrder(configuration.isRandomizedOrder());
         deck.setGroup(group);
         decksRepository.save(deck);
+    }
+
+    public List<AggregatedDeckDTO> getAggregatedDecksByGroupId(LocalUser user, Long groupId) {
+
+        List<Deck> decks = decksRepository.findByGroups_IdAndGroups_LocalUser_Id(groupId, user.getId());
+
+        return AggregatedDeckMapper.toAggregatedDeckDTOs(decks, groupId, user);
     }
 }

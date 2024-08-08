@@ -1,8 +1,8 @@
 package com.sonsenim.sonsenimbackend.api.controller.decks;
 
 import com.sonsenim.sonsenimbackend.api.model.DeckConfigurationBody;
-import com.sonsenim.sonsenimbackend.model.Deck;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
+import com.sonsenim.sonsenimbackend.model.dto.AggregatedDeckDTO;
 import com.sonsenim.sonsenimbackend.model.dto.DeckDTO;
 import com.sonsenim.sonsenimbackend.service.DecksService;
 import jakarta.validation.Valid;
@@ -41,6 +41,18 @@ public class DecksController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create deck" + e.getMessage());
         }
+    }
 
+    @GetMapping("/stats/{groupId}")
+    public ResponseEntity<List<AggregatedDeckDTO>> getDecksWithAggregatedData(
+            @AuthenticationPrincipal LocalUser user,
+            @PathVariable Long groupId
+    ) {
+        try {
+            List<AggregatedDeckDTO> aggregatedDeck = decksService.getAggregatedDecksByGroupId(user, groupId);
+            return ResponseEntity.ok(aggregatedDeck);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.sonsenim.sonsenimbackend.model.dto;
 
+
+// TODO: Rename to AggregatedGroupDTO
 public class GroupStatisticsDTO {
     private int decksTotal;
     private long cardsTotal;
