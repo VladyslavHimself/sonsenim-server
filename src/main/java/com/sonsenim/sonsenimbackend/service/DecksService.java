@@ -46,6 +46,6 @@ public class DecksService {
 
         List<Deck> decks = decksRepository.findByGroups_IdAndGroups_LocalUser_Id(groupId, user.getId());
 
-        return AggregatedDeckMapper.toAggregatedDeckDTOs(decks, groupId, user);
+        return AggregatedDeckMapper.toAggregatedDeckDTOs(decks, user);
     }
 }

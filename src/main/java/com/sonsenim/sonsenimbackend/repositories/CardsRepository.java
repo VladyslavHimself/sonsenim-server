@@ -28,4 +28,7 @@ public interface CardsRepository extends JpaRepository<Card, Long> {
     int updateNextRepetitionTimeById(LocalDateTime nextRepetitionTime, Long id);
 
     long countByDeck_Groups_IdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);
+
+    long countByDeck_IdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);
+
 }

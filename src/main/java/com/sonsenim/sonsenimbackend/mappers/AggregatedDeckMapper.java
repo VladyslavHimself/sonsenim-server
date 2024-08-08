@@ -20,15 +20,15 @@ public class AggregatedDeckMapper {
         this.cardsRepository = cardsRepository;
     }
 
-    public static List<AggregatedDeckDTO> toAggregatedDeckDTOs(List<Deck> decks, Long groupId, LocalUser user) {
-        return decks.stream().map((deck) -> toDTO(deck, groupId, user)).collect(Collectors.toList());
+    public static List<AggregatedDeckDTO> toAggregatedDeckDTOs(List<Deck> decks, LocalUser user) {
+        return decks.stream().map((deck) -> toDTO(deck, user)).collect(Collectors.toList());
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public static AggregatedDeckDTO toDTO(Deck deck, Long groupId, LocalUser user) {
+    public static AggregatedDeckDTO toDTO(Deck deck, LocalUser user) {
         AggregatedDeckDTO aggregatedDeckDTO = new AggregatedDeckDTO();
 
-        long cardsInDeck = cardsRepository.countByDeck_Groups_IdAndDeck_Groups_LocalUser(groupId, user);
+        long cardsInDeck = cardsRepository.countByDeck_IdAndDeck_Groups_LocalUser(deck.getId(), user);
 
         aggregatedDeckDTO.setId(deck.getId());
         aggregatedDeckDTO.setDeckName(deck.getDeckName());
