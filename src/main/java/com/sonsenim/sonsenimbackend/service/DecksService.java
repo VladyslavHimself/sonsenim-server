@@ -42,6 +42,19 @@ public class DecksService {
         decksRepository.save(deck);
     }
 
+    public Deck updateDeck(LocalUser user, Long deckId, DeckConfigurationBody configuration) throws Exception {
+        Deck existingDeck = decksRepository.findByIdAndGroups_LocalUser(deckId, user);
+
+
+        existingDeck.setDeckName(configuration.getDeckName());
+        existingDeck.setIsTyping(configuration.isTyping());
+        existingDeck.setIsFlashcardNormal(configuration.isFlashcardNormal());
+        existingDeck.setIsFlashcardReversed(configuration.isFlashcardReversed());
+        existingDeck.setRandomizedOrder(configuration.isRandomizedOrder());
+
+        return decksRepository.save(existingDeck);
+    }
+
     public List<AggregatedDeckDTO> getAggregatedDecksByGroupId(LocalUser user, Long groupId) {
 
         List<Deck> decks = decksRepository.findByGroups_IdAndGroups_LocalUser_Id(groupId, user.getId());

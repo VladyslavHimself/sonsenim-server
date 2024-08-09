@@ -43,6 +43,23 @@ public class DecksController {
         }
     }
 
+    @PutMapping("/{deckId}")
+    public ResponseEntity<String> updateDeck(
+            @AuthenticationPrincipal LocalUser user,
+            @PathVariable Long deckId,
+            @Valid @RequestBody DeckConfigurationBody deckConfiguration) {
+
+        try {
+            decksService.updateDeck(user, deckId, deckConfiguration);
+            return ResponseEntity.ok("Deck updated successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update deck");
+        }
+
+    }
+
     @GetMapping("/stats/{groupId}")
     public ResponseEntity<List<AggregatedDeckDTO>> getDecksWithAggregatedData(
             @AuthenticationPrincipal LocalUser user,
