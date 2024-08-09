@@ -34,7 +34,7 @@ public class DecksService {
 
         Deck deck = new Deck();
         deck.setDeckName(configuration.getDeckName());
-        deck.setIsTyping(configuration.isTyping());
+        deck.setIsTyping(configuration.isFlashcardTyping());
         deck.setIsFlashcardNormal(configuration.isFlashcardNormal());
         deck.setIsFlashcardReversed(configuration.isFlashcardReversed());
         deck.setRandomizedOrder(configuration.isRandomizedOrder());
@@ -47,7 +47,7 @@ public class DecksService {
 
 
         existingDeck.setDeckName(configuration.getDeckName());
-        existingDeck.setIsTyping(configuration.isTyping());
+        existingDeck.setIsTyping(configuration.isFlashcardTyping());
         existingDeck.setIsFlashcardNormal(configuration.isFlashcardNormal());
         existingDeck.setIsFlashcardReversed(configuration.isFlashcardReversed());
         existingDeck.setRandomizedOrder(configuration.isRandomizedOrder());

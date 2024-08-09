@@ -11,55 +11,58 @@ public class DeckConfigurationBody {
     private String deckName;
 
     @NotNull
-    private boolean isFlashcardNormal;
+    private boolean flashcardNormal;
 
     @NotNull
-    private boolean isFlashcardReversed;
+    private boolean flashcardReversed;
 
     @NotNull
-    private boolean isTyping;
-
+    private boolean flashcardTyping;
 
     @NotNull
-    private boolean isRandomizedOrder;
+    private boolean randomizedOrder;
 
-    public String getDeckName() {
+    public @NotNull @NotBlank @Size(min = 1, max = 256) String getDeckName() {
         return deckName;
     }
 
-    public void setDeckName(String deckName) {
+    public void setDeckName(@NotNull @NotBlank @Size(min = 1, max = 256) String deckName) {
         this.deckName = deckName;
     }
 
+    @NotNull
     public boolean isFlashcardNormal() {
-        return isFlashcardNormal;
+        return flashcardNormal;
     }
 
-    public void setFlashcardNormal(boolean flashcardNormal) {
-        isFlashcardNormal = flashcardNormal;
+    public void setFlashcardNormal(@NotNull boolean flashcardNormal) {
+        this.flashcardNormal = flashcardNormal;
     }
 
+    @NotNull
     public boolean isFlashcardReversed() {
-        return isFlashcardReversed;
+        return flashcardReversed;
     }
 
-    public void setFlashcardReversed(boolean flashcardReversed) {
-        isFlashcardReversed = flashcardReversed;
+    public void setFlashcardReversed(@NotNull boolean flashcardReversed) {
+        this.flashcardReversed = flashcardReversed;
     }
 
-    public boolean isTyping() {
-        return isTyping;
+    @NotNull
+    public boolean isFlashcardTyping() {
+        return flashcardTyping;
     }
 
-    public void setTyping(boolean typing) {
-        isTyping = typing;
+    public void setFlashcardTyping(@NotNull boolean flashcardTyping) {
+        this.flashcardTyping = flashcardTyping;
     }
 
+    @NotNull
     public boolean isRandomizedOrder() {
-        return isRandomizedOrder;
+        return randomizedOrder;
     }
 
-    public void setRandomizedOrder(boolean randomizedOrder) {
-        isRandomizedOrder = randomizedOrder;
+    public void setRandomizedOrder(@NotNull boolean randomizedOrder) {
+        this.randomizedOrder = randomizedOrder;
     }
 }
