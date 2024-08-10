@@ -5,6 +5,7 @@ import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.dto.AggregatedDeckDTO;
 import com.sonsenim.sonsenimbackend.model.dto.DeckDTO;
 import com.sonsenim.sonsenimbackend.service.DecksService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,20 @@ public class DecksController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update deck");
         }
 
+    }
+
+    @Transactional
+    @DeleteMapping("/{deckId}")
+    public ResponseEntity deleteDeck(
+            @AuthenticationPrincipal LocalUser user,
+            @PathVariable Long deckId
+    ) {
+        try {
+            decksService.deleteDeck(user, deckId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @GetMapping("/stats/{groupId}")

@@ -42,6 +42,10 @@ public class DecksService {
         decksRepository.save(deck);
     }
 
+    public void deleteDeck(LocalUser user, Long deckId) {
+        decksRepository.deleteByIdAndGroups_LocalUser(deckId, user);
+    }
+
     public Deck updateDeck(LocalUser user, Long deckId, DeckConfigurationBody configuration) throws Exception {
         Deck existingDeck = decksRepository.findByIdAndGroups_LocalUser(deckId, user);
 
