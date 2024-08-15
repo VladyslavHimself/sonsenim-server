@@ -20,6 +20,7 @@ public class CardsMapper {
        dto.setDefinition(card.getDefinition());
        dto.setExplanation(card.getExplanation());
        dto.setNextRepetitionTime(card.getNextRepetitionTime());
+       dto.setIntervalDaysStrength(card.getIntervalDaysStrength());
        dto.setCreatedAt(card.getCreatedAt());
        return dto;
     };

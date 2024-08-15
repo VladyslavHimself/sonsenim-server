@@ -29,8 +29,13 @@ public class Card {
     @Column(name = "next_repetition_time")
     private LocalDateTime nextRepetitionTime;
 
+
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "interval_days_strength")
+    private Integer intervalDaysStrength;
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -39,6 +44,7 @@ public class Card {
     @PrePersist
     protected void onCreate() {
         createdAt = new Timestamp(System.currentTimeMillis()).toLocalDateTime();
+        intervalDaysStrength = 0;
     }
 
     public LocalDateTime getNextRepetitionTime() {
@@ -47,6 +53,14 @@ public class Card {
 
     public void setNextRepetitionTime(LocalDateTime nextRepetitionTime) {
         this.nextRepetitionTime = nextRepetitionTime;
+    }
+
+    public Integer getIntervalDaysStrength() {
+        return intervalDaysStrength;
+    }
+
+    public void setIntervalDaysStrength(Integer intervalDaysStrength) {
+        this.intervalDaysStrength = intervalDaysStrength;
     }
 
     public String getExplanation() {
