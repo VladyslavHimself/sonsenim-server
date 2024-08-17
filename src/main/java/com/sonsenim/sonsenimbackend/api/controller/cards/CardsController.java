@@ -59,6 +59,8 @@ public class CardsController {
         }
     }
 
+
+    // TODO: Check if deckId is rly necessary
     @PutMapping("/{deckId}/{cardId}")
     public ResponseEntity<CardDTO> updateCard(@AuthenticationPrincipal LocalUser user, @PathVariable Long deckId, @PathVariable Long cardId, @RequestBody CardConfigurationBody cardConfiguration) {
         try {
