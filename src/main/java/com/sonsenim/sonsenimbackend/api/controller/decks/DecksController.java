@@ -4,6 +4,7 @@ import com.sonsenim.sonsenimbackend.api.model.DeckConfigurationBody;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.dto.AggregatedDeckDTO;
 import com.sonsenim.sonsenimbackend.model.dto.DeckDTO;
+import com.sonsenim.sonsenimbackend.model.dto.GroupDTO;
 import com.sonsenim.sonsenimbackend.service.DecksService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -59,6 +60,15 @@ public class DecksController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update deck");
         }
 
+    }
+
+    @GetMapping("/id/{deckId}")
+    public ResponseEntity<DeckDTO> getDeckById(@AuthenticationPrincipal LocalUser user, @PathVariable Long deckId) {
+        try {
+            return ResponseEntity.ok(decksService.getDeckById(deckId, user));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @Transactional

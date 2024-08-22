@@ -9,9 +9,11 @@ import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.dto.AggregatedDeckDTO;
 import com.sonsenim.sonsenimbackend.model.dto.DeckDTO;
 import com.sonsenim.sonsenimbackend.repositories.DecksRepository;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DecksService {
@@ -22,6 +24,11 @@ public class DecksService {
     public DecksService(DecksRepository decksRepository, GroupsService groupsService) {
         this.decksRepository = decksRepository;
         this.groupsService = groupsService;
+    }
+
+    public DeckDTO getDeckById(Long deckId, LocalUser user) {
+        Deck deck = decksRepository.findByIdAndGroups_LocalUser(deckId, user);
+        return DecksMapper.toDTO(deck);
     }
 
     public List<DeckDTO> getUserDecksByGroupId(LocalUser user, Long groupId) {
