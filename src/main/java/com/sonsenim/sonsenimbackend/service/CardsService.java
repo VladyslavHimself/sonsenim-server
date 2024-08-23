@@ -31,7 +31,7 @@ public class CardsService {
     }
 
     public List<CardDTO> getCardsToRepeatFromDeck(Long deckId, LocalUser user) {
-        List<Card> cards = cardsRepository.findByDeck_IdAndDeck_Groups_LocalUserAndDeck_Cards_NextRepetitionTimeLessThan(deckId, user, LocalDateTime.now());
+          List<Card> cards = cardsRepository.findCardsDueBeforeTodayOrNull(deckId, user, LocalDateTime.now());
         return CardsMapper.toCardDTO(cards);
     }
 

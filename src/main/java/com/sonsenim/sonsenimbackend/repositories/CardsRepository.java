@@ -5,7 +5,7 @@ import com.sonsenim.sonsenimbackend.model.LocalUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.lang.Nullable;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -16,7 +16,8 @@ public interface CardsRepository extends JpaRepository<Card, Long> {
 
     List<Card> findByDeck_IdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);
 
-    List<Card> findByDeck_IdAndDeck_Groups_LocalUserAndDeck_Cards_NextRepetitionTimeLessThan(Long id, LocalUser localUser, @Nullable LocalDateTime nextRepetitionTime);
+    @Query("SELECT c FROM Card c WHERE c.deck.id = :deckId AND c.deck.groups.localUser = :localUser AND (c.nextRepetitionTime IS NULL OR c.nextRepetitionTime < :todayStart)")
+    List<Card> findCardsDueBeforeTodayOrNull(@Param("deckId") Long deckId, @Param("localUser") LocalUser localUser, @Param("todayStart") LocalDateTime todayStart);
 
     Card findByIdAndDeck_IdAndDeck_Groups_LocalUser(Long id, Long id1, LocalUser localUser);
 
