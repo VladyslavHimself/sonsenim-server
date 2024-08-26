@@ -39,6 +39,7 @@ public class DecksController {
             @Valid @RequestBody DeckConfigurationBody deckConfiguration) {
         try {
             decksService.createNewDeck(user, groupId, deckConfiguration);
+            System.out.println(deckConfiguration.isFlashcardNormal());
             return ResponseEntity.ok("Deck created successfully.");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create deck" + e.getMessage());

@@ -8,7 +8,7 @@ public class CardDTO {
     private String definition;
     private String explanation;
     private LocalDateTime nextRepetitionTime;
-    private Integer intervalStrength;
+    private Float intervalStrength;
     private LocalDateTime createdAt;
 
 
@@ -60,11 +60,11 @@ public class CardDTO {
         this.createdAt = createdAt;
     }
 
-    public Integer getIntervalStrength() {
+    public Float getIntervalStrength() {
         return intervalStrength;
     }
 
-    public void setIntervalStrength(Integer intervalStrength) {
+    public void setIntervalStrength(Float intervalStrength) {
         this.intervalStrength = intervalStrength;
     }
 }
