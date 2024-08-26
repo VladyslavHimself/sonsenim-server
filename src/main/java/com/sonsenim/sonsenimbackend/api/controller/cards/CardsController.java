@@ -86,61 +86,33 @@ public class CardsController {
         try {
             Card existingCard = cardsRepository.findByIdAndDeck_Groups_LocalUser(cardId, user);
 
-            // TODO: Hardcoded, optimize with LinkedMap
+            if (existingCard == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Card not found");
+            }
 
-            boolean isAnswerRight = !configuration.isAnswerRight();
-
+            boolean isAnswerRight = configuration.isAnswerRight();
             float currentIntervalStr = existingCard.getIntervalStrength();
 
-            if ((currentIntervalStr >= 180 && currentIntervalStr < 360) && isAnswerRight) {
-                existingCard.setIntervalStrength(360f);
-            }
+            // Interval thresholds and corresponding strengths
+            float[][] intervalStrengths = {
+                    {180f, 360f}, {90f, 180f}, {30f, 90f}, {14f, 30f},
+                    {7f, 14f}, {3f, 7f}, {1f, 3f}, {0.5f, 1f}, {0.25f, 0.5f}, {0f, 0.25f}
+            };
 
-            if ((currentIntervalStr >= 90 && currentIntervalStr < 180 ) && isAnswerRight) {
-                existingCard.setIntervalStrength(180f);
-            }
-
-            if ((currentIntervalStr >= 30 && currentIntervalStr < 90) && isAnswerRight) {
-                existingCard.setIntervalStrength(90f);
-            }
-
-            if ((currentIntervalStr >= 14 && currentIntervalStr < 30) && isAnswerRight) {
-                existingCard.setIntervalStrength(30f);
-            }
-
-            if ((currentIntervalStr >= 7 && currentIntervalStr < 14) && isAnswerRight) {
-                existingCard.setIntervalStrength(14f);
-            }
-
-            if ((currentIntervalStr >= 3 && currentIntervalStr < 7) && isAnswerRight) {
-                existingCard.setIntervalStrength(7f);
-            }
-
-            if ((currentIntervalStr >= 1 && currentIntervalStr < 3) && isAnswerRight) {
-                existingCard.setIntervalStrength(3f);
-            }
-
-            if ((currentIntervalStr >= 0.5 && currentIntervalStr < 1) && isAnswerRight) {
-                existingCard.setIntervalStrength(1f);
-            }
-
-            if ((currentIntervalStr >= 0.25 && currentIntervalStr < 0.5) && isAnswerRight) {
-                existingCard.setIntervalStrength(0.5f);
-            }
-
-            if (currentIntervalStr == 0 && !isAnswerRight) {
-                existingCard.setIntervalStrength(0.125f);
-            }
-
-            if ((currentIntervalStr >= 0 && currentIntervalStr < 0.25) && isAnswerRight) {
-                existingCard.setIntervalStrength(0.25f);
-            }
-
-            if (!isAnswerRight && currentIntervalStr > 0.125) {
-                if (currentIntervalStr / 2 < 0.125) {
+            // Increase interval strength if the answer is right
+            if (isAnswerRight) {
+                for (float[] range : intervalStrengths) {
+                    if (currentIntervalStr >= range[0] && currentIntervalStr < range[1]) {
+                        existingCard.setIntervalStrength(range[1]);
+                        break;
+                    }
+                }
+            } else {
+                // Decrease interval strength if the answer is wrong
+                if (currentIntervalStr == 0) {
                     existingCard.setIntervalStrength(0.125f);
-                } else {
-                    existingCard.setIntervalStrength(currentIntervalStr / 2);
+                } else if (currentIntervalStr > 0.125f) {
+                    existingCard.setIntervalStrength(Math.max(0.125f, currentIntervalStr / 2));
                 }
             }
 
