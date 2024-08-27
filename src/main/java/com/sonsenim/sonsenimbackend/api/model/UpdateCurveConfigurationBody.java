@@ -1,14 +1,18 @@
 package com.sonsenim.sonsenimbackend.api.model;
 
+import jakarta.validation.constraints.NotNull;
+
 public class UpdateCurveConfigurationBody {
 
-    private boolean isAnswerRight;
+    @NotNull
+    private boolean answerIsRight;
 
-    public boolean isAnswerRight() {
-        return isAnswerRight;
+
+    public boolean isAnswerIsRight() {
+        return answerIsRight;
     }
 
-    public void setAnswerRight(boolean answerRight) {
-        isAnswerRight = answerRight;
+    public void setAnswerIsRight(boolean answerIsRight) {
+        this.answerIsRight = answerIsRight;
     }
 }

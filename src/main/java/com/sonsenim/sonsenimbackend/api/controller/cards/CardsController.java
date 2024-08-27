@@ -14,8 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -81,7 +79,7 @@ public class CardsController {
     public ResponseEntity updateTimeCurveForCards(
             @AuthenticationPrincipal LocalUser user,
             @PathVariable Long cardId,
-            @RequestBody UpdateCurveConfigurationBody configuration
+            @RequestBody @Valid UpdateCurveConfigurationBody configuration
     ) {
         try {
             Card existingCard = cardsRepository.findByIdAndDeck_Groups_LocalUser(cardId, user);
@@ -90,16 +88,14 @@ public class CardsController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Card not found");
             }
 
-            boolean isAnswerRight = configuration.isAnswerRight();
+            boolean isAnswerRight = configuration.isAnswerIsRight();
             float currentIntervalStr = existingCard.getIntervalStrength();
 
-            // Interval thresholds and corresponding strengths
             float[][] intervalStrengths = {
                     {180f, 360f}, {90f, 180f}, {30f, 90f}, {14f, 30f},
                     {7f, 14f}, {3f, 7f}, {1f, 3f}, {0.5f, 1f}, {0.25f, 0.5f}, {0f, 0.25f}
             };
 
-            // Increase interval strength if the answer is right
             if (isAnswerRight) {
                 for (float[] range : intervalStrengths) {
                     if (currentIntervalStr >= range[0] && currentIntervalStr < range[1]) {
@@ -108,7 +104,6 @@ public class CardsController {
                     }
                 }
             } else {
-                // Decrease interval strength if the answer is wrong
                 if (currentIntervalStr == 0) {
                     existingCard.setIntervalStrength(0.125f);
                 } else if (currentIntervalStr > 0.125f) {
