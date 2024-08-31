@@ -28,6 +28,9 @@ public interface CardsRepository extends JpaRepository<Card, Long> {
     @Query("update Card c set c.nextRepetitionTime = ?1 where c.id = ?2")
     int updateNextRepetitionTimeById(LocalDateTime nextRepetitionTime, Long id);
 
+    @Query("SELECT COUNT(c) FROM Card c WHERE c.deck.id = :deckId AND c.deck.groups.localUser = :localUser AND (c.nextRepetitionTime IS NULL OR c.nextRepetitionTime < :todayStart)")
+    Long countCardsDueBeforeTodayOrNull(@Param("deckId") Long deckId, @Param("localUser") LocalUser localUser, @Param("todayStart") LocalDateTime todayStart);
+
     long countByDeck_Groups_IdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);
 
     long countByDeck_IdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);

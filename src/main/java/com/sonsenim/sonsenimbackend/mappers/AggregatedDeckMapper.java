@@ -7,6 +7,7 @@ import com.sonsenim.sonsenimbackend.repositories.CardsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ public class AggregatedDeckMapper {
         AggregatedDeckDTO aggregatedDeckDTO = new AggregatedDeckDTO();
 
         long cardsInDeck = cardsRepository.countByDeck_IdAndDeck_Groups_LocalUser(deck.getId(), user);
+        long dueCardsInDeck = cardsRepository.countCardsDueBeforeTodayOrNull(deck.getId(), user, LocalDateTime.now());
 
         aggregatedDeckDTO.setId(deck.getId());
         aggregatedDeckDTO.setDeckName(deck.getDeckName());
@@ -38,6 +40,7 @@ public class AggregatedDeckMapper {
         aggregatedDeckDTO.setFlashcardTyping(deck.getIsTyping());
         aggregatedDeckDTO.setCreatedAt(deck.getCreatedAt());
         aggregatedDeckDTO.setCardsInDeckTotal(cardsInDeck);
+        aggregatedDeckDTO.setDueCardsInDeck(dueCardsInDeck);
 
         return aggregatedDeckDTO;
     }

@@ -5,14 +5,13 @@ import java.sql.Timestamp;
 public class AggregatedDeckDTO {
     private Long id;
     private String deckName;
+    private Long dueCardsInDeck;
     private Boolean isFlashcardNormal;
     private Boolean isFlashcardReversed;
     private Boolean isFlashcardTyping;
     private Boolean isRandomizedOrder;
     private Timestamp createdAt;
-
     private long cardsInDeckTotal;
-    //    private int dueCardsInDeckTotal; TODO: Add when card memorization flow will be done
 
     public String getDeckName() {
         return deckName;
@@ -76,5 +75,13 @@ public class AggregatedDeckDTO {
 
     public void setCardsInDeckTotal(long cardsInDeckTotal) {
         this.cardsInDeckTotal = cardsInDeckTotal;
+    }
+
+    public Long getDueCardsInDeck() {
+        return dueCardsInDeck;
+    }
+
+    public void setDueCardsInDeck(Long dueCardsInDeck) {
+        this.dueCardsInDeck = dueCardsInDeck;
     }
 }
