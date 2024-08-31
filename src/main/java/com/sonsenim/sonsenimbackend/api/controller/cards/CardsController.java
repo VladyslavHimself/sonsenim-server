@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -100,28 +102,46 @@ public class CardsController {
                 for (float[] range : intervalStrengths) {
                     if (currentIntervalStr >= range[0] && currentIntervalStr < range[1]) {
                         existingCard.setIntervalStrength(range[1]);
+                        if (range[1] < 1f) {
+                            long hours = (long) (range[1] * 24);
+                            existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(hours));
+                        } else {
+                            existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) range[1]));
+                        }
+
                         break;
                     }
                 }
             } else {
                 if (currentIntervalStr == 0) {
                     existingCard.setIntervalStrength(0.125f);
+                    existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(3));
                 } else if (currentIntervalStr > 0.125f) {
-                    existingCard.setIntervalStrength(Math.max(0.125f, currentIntervalStr / 2));
+                    float newIntervalStrength = Math.max(0.125f, currentIntervalStr / 2);
+                    existingCard.setIntervalStrength(newIntervalStrength);
+
+                    if (existingCard.getNextRepetitionTime() == null) {
+                        existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) newIntervalStrength));
+                    }
+
+                    Duration durationUntilNextRepetition = Duration.between(LocalDateTime.now(), existingCard.getNextRepetitionTime());
+                    Duration halvedDuration = durationUntilNextRepetition.dividedBy(2);
+                    existingCard.setNextRepetitionTime(LocalDateTime.now().plus(halvedDuration));
                 }
             }
 
-            cardsRepository.save(existingCard);
-            return ResponseEntity.status(HttpStatus.OK).body(CardsMapper.toDto(existingCard));
+                cardsRepository.save(existingCard);
+                return ResponseEntity.status(HttpStatus.OK).body(CardsMapper.toDto(existingCard));
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
         }
-    }
 
-    @GetMapping("/{deckId}/to-repeat")
-    public ResponseEntity<List<CardDTO>> getCardsToRepeatFromDeck(@AuthenticationPrincipal LocalUser user, @PathVariable Long deckId) {
-        List<CardDTO> cardsToRepeat = cardsService.getCardsToRepeatFromDeck(deckId, user);
-        return ResponseEntity.ok(cardsToRepeat);
-    }
+        @GetMapping("/{deckId}/to-repeat")
+        public ResponseEntity<List<CardDTO>> getCardsToRepeatFromDeck(@AuthenticationPrincipal LocalUser user, @PathVariable Long deckId) {
+            List<CardDTO> cardsToRepeat = cardsService.getCardsToRepeatFromDeck(deckId, user);
+            return ResponseEntity.ok(cardsToRepeat);
+        }
 }
