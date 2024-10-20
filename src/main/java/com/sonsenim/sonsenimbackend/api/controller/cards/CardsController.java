@@ -77,7 +77,7 @@ public class CardsController {
         }
     }
 
-    @PatchMapping("/{cardId}/update-curve/1")
+    @PatchMapping("/{cardId}/update-curve")
     public ResponseEntity updateTimeCurveForCards(
             @AuthenticationPrincipal LocalUser user,
             @PathVariable Long cardId,
@@ -94,29 +94,34 @@ public class CardsController {
             float currentIntervalStr = existingCard.getIntervalStrength();
 
             float[][] intervalStrengths = {
-                    {180f, 360f}, {90f, 180f}, {30f, 90f}, {14f, 30f},
+                    {360, 360}, {180f, 360f}, {90f, 180f}, {30f, 90f}, {14f, 30f},
                     {7f, 14f}, {3f, 7f}, {1f, 3f}, {0.5f, 1f}, {0.25f, 0.5f}, {0f, 0.25f}
             };
 
             if (isAnswerRight) {
                 for (float[] range : intervalStrengths) {
-                    if (currentIntervalStr >= range[0] && currentIntervalStr < range[1]) {
+                    if (currentIntervalStr >= range[0] && (currentIntervalStr < range[1] || currentIntervalStr == 360)) {
                         existingCard.setIntervalStrength(range[1]);
+
                         if (range[1] < 1f) {
                             long hours = (long) (range[1] * 24);
                             existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(hours));
                         } else {
                             existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) range[1]));
                         }
-
                         break;
                     }
                 }
-            } else {
+            }
+
+            if (!isAnswerRight) {
                 if (currentIntervalStr == 0) {
                     existingCard.setIntervalStrength(0.125f);
                     existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(3));
-                } else if (currentIntervalStr > 0.125f) {
+
+                }
+
+                if (currentIntervalStr >= 0.125f) {
                     float newIntervalStrength = Math.max(0.125f, currentIntervalStr / 2);
                     existingCard.setIntervalStrength(newIntervalStrength);
 
@@ -124,14 +129,17 @@ public class CardsController {
                         existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) newIntervalStrength));
                     }
 
-                    Duration durationUntilNextRepetition = Duration.between(LocalDateTime.now(), existingCard.getNextRepetitionTime());
-                    Duration halvedDuration = durationUntilNextRepetition.dividedBy(2);
-                    existingCard.setNextRepetitionTime(LocalDateTime.now().plus(halvedDuration));
+                    if (newIntervalStrength < 1f) {
+                        long hours = (long) (newIntervalStrength * 24);
+                        existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(hours));
+                    } else {
+                        existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) newIntervalStrength));
+                    }
                 }
             }
 
-                cardsRepository.save(existingCard);
-                return ResponseEntity.status(HttpStatus.OK).body(CardsMapper.toDto(existingCard));
+            cardsRepository.save(existingCard);
+            return ResponseEntity.status(HttpStatus.OK).body(CardsMapper.toDto(existingCard));
 
             } catch (Exception e) {
                 e.printStackTrace();
