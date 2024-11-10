@@ -15,4 +15,6 @@ public interface DecksRepository extends JpaRepository<Deck, Long> {
     long countByGroups_Id(Long id);
 
     long deleteByIdAndGroups_LocalUser(Long id, LocalUser localUser);
+
+    long countByGroups_LocalUser_Id(Long id);
 }

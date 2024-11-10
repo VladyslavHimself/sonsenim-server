@@ -36,4 +36,6 @@ public interface CardsRepository extends JpaRepository<Card, Long> {
     long countByDeck_IdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);
 
     Card findByIdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);
+
+    long countByDeck_Groups_LocalUser_Id(Long id);
 }

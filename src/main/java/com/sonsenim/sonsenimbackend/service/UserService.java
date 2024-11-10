@@ -7,6 +7,8 @@ import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.api.model.LoginBody;
 import com.sonsenim.sonsenimbackend.model.dao.LocalUserDAO;
 import com.sonsenim.sonsenimbackend.model.dto.LocalUserDTO;
+import com.sonsenim.sonsenimbackend.repositories.CardsRepository;
+import com.sonsenim.sonsenimbackend.repositories.DecksRepository;
 import com.sonsenim.sonsenimbackend.repositories.LocalUserRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,13 +20,17 @@ public class UserService {
     private final EncryptionService encryptionService;
     private final JWTService jwtService;
     private final LocalUserRepository localUserRepository;
+    private final DecksRepository decksRepository;
+    private final CardsRepository cardsRepository;
 
     public UserService(LocalUserDAO localUserDAO, EncryptionService encryptionService, JWTService jwtService,
-                       LocalUserRepository localUserRepository) {
+                       LocalUserRepository localUserRepository, DecksRepository decksRepository, CardsRepository cardsRepository) {
         this.localUserDAO = localUserDAO;
         this.encryptionService = encryptionService;
         this.jwtService = jwtService;
         this.localUserRepository = localUserRepository;
+        this.decksRepository = decksRepository;
+        this.cardsRepository = cardsRepository;
     }
 
     public LocalUser registerUser(RegistrationBody registrationBody) throws UserAlreadyExistsException {
@@ -53,7 +59,9 @@ public class UserService {
     public LocalUserDTO getUserWithDTO(Long id) {
         try {
             Optional<LocalUser> localUser = localUserRepository.findById(id);
-            return LocalUserMapper.toDTO(localUser);
+            long totalDecks = decksRepository.countByGroups_LocalUser_Id(id);
+            long totalCards = cardsRepository.countByDeck_Groups_LocalUser_Id(id);
+            return LocalUserMapper.toDTO(localUser, totalCards, totalDecks);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
