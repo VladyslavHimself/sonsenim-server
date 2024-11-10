@@ -40,6 +40,8 @@ public class UserService {
 
         LocalUser user = new LocalUser();
         user.setUsername(registrationBody.getUsername());
+        user.setFirstName(registrationBody.getFirstName());
+        user.setLastName(registrationBody.getLastName());
         user.setEmail(registrationBody.getEmail());
         user.setPassword(encryptionService.encryptPassword(registrationBody.getPassword()));
         return localUserDAO.save(user);

@@ -19,6 +19,8 @@ public class LocalUser {
     @Column(name = "username", nullable = false, length = 60)
     private String username;
 
+
+
     @JsonIgnore
     @Column(name = "password", nullable = false, length = 1000)
     private String password;
@@ -32,6 +34,28 @@ public class LocalUser {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
     public LocalDateTime getCreatedAt() {
         return createdAt;

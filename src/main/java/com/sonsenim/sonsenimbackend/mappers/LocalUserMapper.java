@@ -11,6 +11,8 @@ public class LocalUserMapper {
             LocalUserDTO dto = new LocalUserDTO();
             dto.setId(localUser.get().getId());
             dto.setUsername(localUser.get().getUsername());
+            dto.setFirstName(localUser.get().getFirstName());
+            dto.setLastName(localUser.get().getLastName());
             dto.setEmail(localUser.get().getEmail());
             dto.setTotalCards(totalCards);
             dto.setTotalDecks(totalDecks);

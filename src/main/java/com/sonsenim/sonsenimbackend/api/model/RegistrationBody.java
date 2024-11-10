@@ -13,6 +13,14 @@ public class RegistrationBody {
 
     @NotNull
     @NotBlank
+    private String firstName;
+
+    @NotNull
+    @NotBlank
+    private String lastName;
+
+    @NotNull
+    @NotBlank
     @Email
     private String email;
 
@@ -42,5 +50,21 @@ public class RegistrationBody {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public @NotNull @NotBlank String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(@NotNull @NotBlank String firstName) {
+        this.firstName = firstName;
+    }
+
+    public @NotNull @NotBlank String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(@NotNull @NotBlank String lastName) {
+        this.lastName = lastName;
     }
 }
