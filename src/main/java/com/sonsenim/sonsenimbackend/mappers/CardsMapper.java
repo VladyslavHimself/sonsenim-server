@@ -21,7 +21,7 @@ public class CardsMapper {
        dto.setExplanation(card.getExplanation());
        dto.setNextRepetitionTime(card.getNextRepetitionTime());
        dto.setIntervalStrength(card.getIntervalStrength());
-       dto.setCreatedAt(card.getCreatedAt());
+       dto.setCreatedAt(card.getCreatedDate());
        return dto;
     };
 }

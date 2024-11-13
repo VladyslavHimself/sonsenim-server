@@ -1,6 +1,7 @@
 package com.sonsenim.sonsenimbackend.service;
 
 import com.sonsenim.sonsenimbackend.api.model.CardConfigurationBody;
+import com.sonsenim.sonsenimbackend.api.model.UpdateCurveConfigurationBody;
 import com.sonsenim.sonsenimbackend.mappers.CardsMapper;
 import com.sonsenim.sonsenimbackend.model.Card;
 import com.sonsenim.sonsenimbackend.model.Deck;
@@ -55,9 +56,56 @@ public class CardsService {
         return CardsMapper.toDto(existingCard);
     }
 
-    public void updateCardTimeCurve(Long deckId, Long cardId, LocalUser user, LocalDateTime newRepetitionTime) {
-        Card existingCard = cardsRepository.findByIdAndDeck_IdAndDeck_Groups_LocalUser(cardId, deckId, user);
-        cardsRepository.updateNextRepetitionTimeById(newRepetitionTime, existingCard.getId());
+    public Card updateCardTimeIntervalByUserDecision(Card existingCard, UpdateCurveConfigurationBody configuration) {
+        boolean isAnswerRight = configuration.isAnswerIsRight();
+        float currentIntervalStr = existingCard.getIntervalStrength();
+
+        float[][] intervalStrengths = {
+                {360, 360}, {180f, 360f}, {90f, 180f}, {30f, 90f}, {14f, 30f},
+                {7f, 14f}, {3f, 7f}, {1f, 3f}, {0.5f, 1f}, {0.25f, 0.5f}, {0f, 0.25f}
+        };
+
+        if (isAnswerRight) {
+            for (float[] range : intervalStrengths) {
+                if (currentIntervalStr >= range[0] && (currentIntervalStr < range[1] || currentIntervalStr == 360)) {
+                    existingCard.setIntervalStrength(range[1]);
+
+                    if (range[1] < 1f) {
+                        long hours = (long) (range[1] * 24);
+                        existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(hours));
+                    } else {
+                        existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) range[1]));
+                    }
+                    break;
+                }
+            }
+        }
+        if (!isAnswerRight) {
+            if (currentIntervalStr == 0) {
+                existingCard.setIntervalStrength(0.125f);
+                existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(3));
+
+            }
+
+            if (currentIntervalStr >= 0.125f) {
+                float newIntervalStrength = Math.max(0.125f, currentIntervalStr / 2);
+                existingCard.setIntervalStrength(newIntervalStrength);
+
+                if (existingCard.getNextRepetitionTime() == null) {
+                    existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) newIntervalStrength));
+                }
+
+                if (newIntervalStrength < 1f) {
+                    long hours = (long) (newIntervalStrength * 24);
+                    existingCard.setNextRepetitionTime(LocalDateTime.now().plusHours(hours));
+                } else {
+                    existingCard.setNextRepetitionTime(LocalDateTime.now().plusDays((long) newIntervalStrength));
+                }
+            }
+        }
+
+        cardsRepository.save(existingCard);
+        return existingCard;
     }
 
     public void removeCardFromDeck(LocalUser user, Long deckId, Long cardId) {
