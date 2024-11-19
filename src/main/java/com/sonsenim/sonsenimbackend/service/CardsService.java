@@ -3,16 +3,16 @@ package com.sonsenim.sonsenimbackend.service;
 import com.sonsenim.sonsenimbackend.api.model.CardConfigurationBody;
 import com.sonsenim.sonsenimbackend.api.model.UpdateCurveConfigurationBody;
 import com.sonsenim.sonsenimbackend.mappers.CardsMapper;
-import com.sonsenim.sonsenimbackend.model.Card;
-import com.sonsenim.sonsenimbackend.model.Deck;
-import com.sonsenim.sonsenimbackend.model.LocalUser;
+import com.sonsenim.sonsenimbackend.model.*;
 import com.sonsenim.sonsenimbackend.model.dto.CardDTO;
 import com.sonsenim.sonsenimbackend.repositories.CardsRepository;
 import com.sonsenim.sonsenimbackend.repositories.DecksRepository;
+import com.sonsenim.sonsenimbackend.repositories.UserCardsProgressionHistoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -20,10 +20,20 @@ public class CardsService {
 
     private final CardsRepository cardsRepository;
     private final DecksRepository decksRepository;
+    private final UserCardsProgressionHistoryRepository userCardsProgressionHistoryRepository;
 
-    public CardsService(CardsRepository cardsRepository, DecksRepository decksRepository) {
+    private final float[][] paceRepetitionMatrix = {
+            {360, 360}, {180f, 360f}, {90f, 180f}, {30f, 90f}, {14f, 30f},
+            {7f, 14f}, {3f, 7f}, {1f, 3f}, {0.5f, 1f}, {0.25f, 0.5f}, {0f, 0.25f}
+    };
+
+
+    public CardsService(CardsRepository cardsRepository,
+                        DecksRepository decksRepository,
+                        UserCardsProgressionHistoryRepository userCardsProgressionHistoryRepository) {
         this.cardsRepository = cardsRepository;
         this.decksRepository = decksRepository;
+        this.userCardsProgressionHistoryRepository = userCardsProgressionHistoryRepository;
     }
 
     public List<CardDTO> getAllUserCardsFromDeck(Long deckId, LocalUser user) {
@@ -60,13 +70,8 @@ public class CardsService {
         boolean isAnswerRight = configuration.isAnswerIsRight();
         float currentIntervalStr = existingCard.getIntervalStrength();
 
-        float[][] intervalStrengths = {
-                {360, 360}, {180f, 360f}, {90f, 180f}, {30f, 90f}, {14f, 30f},
-                {7f, 14f}, {3f, 7f}, {1f, 3f}, {0.5f, 1f}, {0.25f, 0.5f}, {0f, 0.25f}
-        };
-
         if (isAnswerRight) {
-            for (float[] range : intervalStrengths) {
+            for (float[] range : paceRepetitionMatrix) {
                 if (currentIntervalStr >= range[0] && (currentIntervalStr < range[1] || currentIntervalStr == 360)) {
                     existingCard.setIntervalStrength(range[1]);
 
@@ -106,6 +111,35 @@ public class CardsService {
 
         cardsRepository.save(existingCard);
         return existingCard;
+    }
+
+    // TODO: Think about move in cardProgressionHistory service or smth like that...
+    public UserCardsProgressionHistory updateUserCardsHistory(Card existingCard) {
+        LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
+        Groups cardGroup = existingCard.getDeck().getGroup();
+        Optional<UserCardsProgressionHistory> actualHistoryData = userCardsProgressionHistoryRepository.findByCreatedDateGreaterThanEqualAndGroup_Id(today, cardGroup.getId());
+
+        long veryLowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(cardGroup.getId(), 0f, 0.49f);
+        long lowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(cardGroup.getId(), 0.5f, 6.99f);
+        long midInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(cardGroup.getId(), 7f, 89.9f);
+        long highInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthGreaterThanEqual(cardGroup.getId(), 90f);
+
+        if (actualHistoryData.isPresent()) {
+            UserCardsProgressionHistory actualHistory = actualHistoryData.get();
+            actualHistory.setVeryLowIndicationCount((int) veryLowInd);
+            actualHistory.setLowIndicationCount((int) lowInd);
+            actualHistory.setMidIndicationCount((int) midInd);
+            actualHistory.setHighIndicationCount((int) highInd);
+            return userCardsProgressionHistoryRepository.save(actualHistory);
+        } else {
+            UserCardsProgressionHistory newHistoryData = new UserCardsProgressionHistory();
+            newHistoryData.setGroup(cardGroup);
+            newHistoryData.setVeryLowIndicationCount((int) veryLowInd);
+            newHistoryData.setLowIndicationCount((int) lowInd);
+            newHistoryData.setMidIndicationCount((int) midInd);
+            newHistoryData.setHighIndicationCount((int) highInd);
+            return userCardsProgressionHistoryRepository.save(newHistoryData);
+        }
     }
 
     public void removeCardFromDeck(LocalUser user, Long deckId, Long cardId) {

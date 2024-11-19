@@ -38,4 +38,8 @@ public interface CardsRepository extends JpaRepository<Card, Long> {
     Card findByIdAndDeck_Groups_LocalUser(Long id, LocalUser localUser);
 
     long countByDeck_Groups_LocalUser_Id(Long id);
+
+    long countByDeck_Groups_IdAndIntervalStrengthBetween(Long id, Float intervalStrengthStart, Float intervalStrengthEnd);
+
+    long countByDeck_Groups_IdAndIntervalStrengthGreaterThanEqual(Long id, Float intervalStrength);
 }

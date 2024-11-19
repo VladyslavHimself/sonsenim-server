@@ -7,24 +7,14 @@ import com.sonsenim.sonsenimbackend.model.Card;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.dto.CardDTO;
 import com.sonsenim.sonsenimbackend.repositories.CardsRepository;
+import com.sonsenim.sonsenimbackend.repositories.GroupsRepository;
 import com.sonsenim.sonsenimbackend.service.CardsService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
-
-/**
- *
- * 1. + Get all user cards from DECK
- * 2. + Get cards that need to repeat by DECK
- * 3. Get all cards that need to repeat by user in this GROUP
- *
- */
 
 
 @RestController
@@ -88,10 +78,9 @@ public class CardsController {
         try {
             Card existingCard = cardsRepository.findByIdAndDeck_Groups_LocalUser(cardId, user);
             if (existingCard == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Card not found");
-
-            Card updatedCard = cardsService.updateCardTimeIntervalByUserDecision(existingCard, configuration);
-            return ResponseEntity.status(HttpStatus.OK).body(CardsMapper.toDto(updatedCard));
-
+            cardsService.updateCardTimeIntervalByUserDecision(existingCard, configuration);
+            cardsService.updateUserCardsHistory(existingCard);
+            return ResponseEntity.status(HttpStatus.OK).body(CardsMapper.toDto(existingCard));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
