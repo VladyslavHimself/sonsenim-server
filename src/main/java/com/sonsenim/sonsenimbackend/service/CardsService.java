@@ -114,32 +114,18 @@ public class CardsService {
     }
 
     // TODO: Think about move in cardProgressionHistory service or smth like that...
-    public UserCardsProgressionHistory updateUserCardsHistory(Card existingCard) {
+    public void updateUserCardsHistory(Card existingCard) {
         LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
         Groups cardGroup = existingCard.getDeck().getGroup();
         Optional<UserCardsProgressionHistory> actualHistoryData = userCardsProgressionHistoryRepository.findByCreatedDateGreaterThanEqualAndGroup_Id(today, cardGroup.getId());
 
-        long veryLowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(cardGroup.getId(), 0f, 0.49f);
-        long lowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(cardGroup.getId(), 0.5f, 6.99f);
-        long midInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(cardGroup.getId(), 7f, 89.9f);
-        long highInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthGreaterThanEqual(cardGroup.getId(), 90f);
 
-        if (actualHistoryData.isPresent()) {
-            UserCardsProgressionHistory actualHistory = actualHistoryData.get();
-            actualHistory.setVeryLowIndicationCount((int) veryLowInd);
-            actualHistory.setLowIndicationCount((int) lowInd);
-            actualHistory.setMidIndicationCount((int) midInd);
-            actualHistory.setHighIndicationCount((int) highInd);
-            return userCardsProgressionHistoryRepository.save(actualHistory);
-        } else {
-            UserCardsProgressionHistory newHistoryData = new UserCardsProgressionHistory();
-            newHistoryData.setGroup(cardGroup);
-            newHistoryData.setVeryLowIndicationCount((int) veryLowInd);
-            newHistoryData.setLowIndicationCount((int) lowInd);
-            newHistoryData.setMidIndicationCount((int) midInd);
-            newHistoryData.setHighIndicationCount((int) highInd);
-            return userCardsProgressionHistoryRepository.save(newHistoryData);
-        }
+        UserCardStats stats = getUserCardStats(cardGroup.getId());
+
+        actualHistoryData.ifPresentOrElse(
+                history -> updateHistory(history, stats),
+                () -> createAndSaveNewHistory(cardGroup, stats)
+        );
     }
 
     public void removeCardFromDeck(LocalUser user, Long deckId, Long cardId) {
@@ -150,4 +136,47 @@ public class CardsService {
     public long getTotalNumberOfCardsFromGroup(LocalUser user, Long groupId) {
         return cardsRepository.countByDeck_Groups_IdAndDeck_Groups_LocalUser(groupId, user);
     }
+
+
+    private void updateHistory(UserCardsProgressionHistory history, UserCardStats stats) {
+        history.setVeryLowIndicationCount((int) stats.veryLowInd);
+        history.setLowIndicationCount((int) stats.lowInd);
+        history.setMidIndicationCount((int) stats.midInd);
+        history.setHighIndicationCount((int) stats.highInd);
+        userCardsProgressionHistoryRepository.save(history);
+    }
+
+    private void createAndSaveNewHistory(Groups group, UserCardStats stats) {
+        UserCardsProgressionHistory newHistory = new UserCardsProgressionHistory();
+        newHistory.setGroup(group);
+        newHistory.setVeryLowIndicationCount((int) stats.veryLowInd);
+        newHistory.setLowIndicationCount((int) stats.lowInd);
+        newHistory.setMidIndicationCount((int) stats.midInd);
+        newHistory.setHighIndicationCount((int) stats.highInd);
+        userCardsProgressionHistoryRepository.save(newHistory);
+    }
+
+    private UserCardStats getUserCardStats(Long groupId) {
+        long veryLowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(groupId, 0f, 0.49f);
+        long lowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(groupId, 0.5f, 6.99f);
+        long midInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(groupId, 7f, 89.9f);
+        long highInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthGreaterThanEqual(groupId, 90f);
+
+        return new UserCardStats(veryLowInd, lowInd, midInd, highInd);
+    }
+
+    private static class UserCardStats {
+        long veryLowInd;
+        long lowInd;
+        long midInd;
+        long highInd;
+
+        UserCardStats(long veryLowInd, long lowInd, long midInd, long highInd) {
+            this.veryLowInd = veryLowInd;
+            this.lowInd = lowInd;
+            this.midInd = midInd;
+            this.highInd = highInd;
+        }
+    }
 }
+
