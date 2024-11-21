@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -105,11 +106,11 @@ public class CardsController {
 
     @GetMapping("/{groupId}/history")
     public ResponseEntity<List<DailyHistoryResponse>> getCardsIntervalHistory(@AuthenticationPrincipal LocalUser user, @PathVariable Long groupId) {
-        LocalDateTime sixDaysAgo = LocalDateTime.now().minusDays(6);
-        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime startDay = LocalDateTime.now().minusDays(7);
+        LocalDateTime endDay = LocalDateTime.now().plusDays(1);
 
         List<UserCardsProgressionHistory> history =
-                userCardsProgressionHistoryRepository.findByGroup_IdAndCreatedDateBetweenOrderByCreatedDateAsc(groupId, sixDaysAgo, today);
+                userCardsProgressionHistoryRepository.findByGroup_IdAndCreatedDateBetweenOrderByCreatedDateAsc(groupId, startDay, endDay);
 
         Map<LocalDate, UserCardsProgressionHistory> historyMap = history.stream()
                 .collect(Collectors.toMap(
@@ -117,18 +118,34 @@ public class CardsController {
                         record -> record
                 ));
 
-        List<DailyHistoryResponse> result = IntStream.rangeClosed(0, 6)
-                .mapToObj(sixDaysAgo::plusDays)
-                .map(date -> {
-                    UserCardsProgressionHistory record = historyMap.get(date.toLocalDate());
 
-                    return new DailyHistoryResponse(
-                            date,
-                            record != null ? record.getVeryLowIndicationCount() : null,
-                            record != null ? record.getLowIndicationCount() : null,
-                            record != null ? record.getMidIndicationCount() : null,
-                            record != null ? record.getHighIndicationCount() : null
-                    );
+        List<DailyHistoryResponse> result = IntStream.rangeClosed(1, 7)
+                .mapToObj(startDay::plusDays)
+                .map(date -> {
+                    Optional<UserCardsProgressionHistory> optionalRecord = Optional.ofNullable(historyMap.get(date.toLocalDate()));
+                    return optionalRecord
+                            .map(record -> new DailyHistoryResponse(
+                                    date,
+                                    record.getVeryLowIndicationCount(),
+                                    record.getLowIndicationCount(),
+                                    record.getMidIndicationCount(),
+                                    record.getHighIndicationCount()
+                            ))
+                            .orElseGet(() -> {
+                                List<UserCardsProgressionHistory> earlierSnapshots = userCardsProgressionHistoryRepository.findByGroup_IdAndCreatedDateLessThanEqualOrderByCreatedDateDesc(groupId, date);
+                                if (!earlierSnapshots.isEmpty()) {
+                                    UserCardsProgressionHistory lastRecord = earlierSnapshots.get(0);
+                                    return new DailyHistoryResponse(
+                                            date,
+                                            lastRecord.getVeryLowIndicationCount(),
+                                            lastRecord.getLowIndicationCount(),
+                                            lastRecord.getMidIndicationCount(),
+                                            lastRecord.getHighIndicationCount()
+                                    );
+                                }
+
+                                return new DailyHistoryResponse(date, 0, 0, 0, 0);
+                            });
                 })
                 .collect(Collectors.toList());
 

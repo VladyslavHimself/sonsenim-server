@@ -11,4 +11,6 @@ public interface UserCardsProgressionHistoryRepository extends JpaRepository<Use
     Optional<UserCardsProgressionHistory> findByCreatedDateGreaterThanEqualAndGroup_Id(LocalDateTime createdDate, Long id);
 
     List<UserCardsProgressionHistory> findByGroup_IdAndCreatedDateBetweenOrderByCreatedDateAsc(Long id, LocalDateTime createdDateStart, LocalDateTime createdDateEnd);
+
+    List<UserCardsProgressionHistory> findByGroup_IdAndCreatedDateLessThanEqualOrderByCreatedDateDesc(Long id, LocalDateTime createdDate);
 }
