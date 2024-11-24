@@ -1,7 +1,7 @@
 package com.sonsenim.sonsenimbackend.api.controller.progressionHistory;
 
 
-import com.sonsenim.sonsenimbackend.mappers.DailyHistoryResponse;
+import com.sonsenim.sonsenimbackend.model.helpers.DailyHistoryResponse;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.UserCardsProgressionHistory;
 import com.sonsenim.sonsenimbackend.service.ProgressionHistoryService;

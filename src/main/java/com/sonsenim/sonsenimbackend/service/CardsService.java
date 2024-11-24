@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
@@ -66,7 +65,7 @@ public class CardsService {
         return CardsMapper.toDto(existingCard);
     }
 
-    public Card updateCardTimeIntervalByUserDecision(Card existingCard, UpdateCurveConfigurationBody configuration) {
+    public void updateCardTimeIntervalByUserDecision(Card existingCard, UpdateCurveConfigurationBody configuration) {
         boolean isAnswerRight = configuration.isAnswerIsRight();
         float currentIntervalStr = existingCard.getIntervalStrength();
 
@@ -110,22 +109,6 @@ public class CardsService {
         }
 
         cardsRepository.save(existingCard);
-        return existingCard;
-    }
-
-    // TODO: Think about move in cardProgressionHistory service or smth like that...
-    public void updateUserCardsHistory(Card existingCard) {
-        LocalDateTime today = LocalDateTime.now().toLocalDate().atStartOfDay();
-        Groups cardGroup = existingCard.getDeck().getGroup();
-        Optional<UserCardsProgressionHistory> actualHistoryData = userCardsProgressionHistoryRepository.findByCreatedDateGreaterThanEqualAndGroup_Id(today, cardGroup.getId());
-
-
-        UserCardStats stats = getUserCardStats(cardGroup.getId());
-
-        actualHistoryData.ifPresentOrElse(
-                history -> updateHistory(history, stats),
-                () -> createAndSaveNewHistory(cardGroup, stats)
-        );
     }
 
     public void removeCardFromDeck(LocalUser user, Long deckId, Long cardId) {
@@ -137,46 +120,5 @@ public class CardsService {
         return cardsRepository.countByDeck_Groups_IdAndDeck_Groups_LocalUser(groupId, user);
     }
 
-
-    private void updateHistory(UserCardsProgressionHistory history, UserCardStats stats) {
-        history.setVeryLowIndicationCount((int) stats.veryLowInd);
-        history.setLowIndicationCount((int) stats.lowInd);
-        history.setMidIndicationCount((int) stats.midInd);
-        history.setHighIndicationCount((int) stats.highInd);
-        userCardsProgressionHistoryRepository.save(history);
-    }
-
-    private void createAndSaveNewHistory(Groups group, UserCardStats stats) {
-        UserCardsProgressionHistory newHistory = new UserCardsProgressionHistory();
-        newHistory.setGroup(group);
-        newHistory.setVeryLowIndicationCount((int) stats.veryLowInd);
-        newHistory.setLowIndicationCount((int) stats.lowInd);
-        newHistory.setMidIndicationCount((int) stats.midInd);
-        newHistory.setHighIndicationCount((int) stats.highInd);
-        userCardsProgressionHistoryRepository.save(newHistory);
-    }
-
-    private UserCardStats getUserCardStats(Long groupId) {
-        long veryLowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(groupId, 0f, 0.49f);
-        long lowInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(groupId, 0.5f, 6.99f);
-        long midInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthBetween(groupId, 7f, 89.9f);
-        long highInd = cardsRepository.countByDeck_Groups_IdAndIntervalStrengthGreaterThanEqual(groupId, 90f);
-
-        return new UserCardStats(veryLowInd, lowInd, midInd, highInd);
-    }
-
-    private static class UserCardStats {
-        long veryLowInd;
-        long lowInd;
-        long midInd;
-        long highInd;
-
-        UserCardStats(long veryLowInd, long lowInd, long midInd, long highInd) {
-            this.veryLowInd = veryLowInd;
-            this.lowInd = lowInd;
-            this.midInd = midInd;
-            this.highInd = highInd;
-        }
-    }
 }
 

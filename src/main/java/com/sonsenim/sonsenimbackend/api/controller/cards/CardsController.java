@@ -9,6 +9,7 @@ import com.sonsenim.sonsenimbackend.model.dto.CardDTO;
 import com.sonsenim.sonsenimbackend.repositories.CardsRepository;
 import com.sonsenim.sonsenimbackend.repositories.UserCardsProgressionHistoryRepository;
 import com.sonsenim.sonsenimbackend.service.CardsService;
+import com.sonsenim.sonsenimbackend.service.ProgressionHistoryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,10 +25,12 @@ public class CardsController {
 
     private final CardsService cardsService;
     private final CardsRepository cardsRepository;
+    private final ProgressionHistoryService progressionHistoryService;
 
-    public CardsController(CardsService cardsService, CardsRepository cardsRepository, UserCardsProgressionHistoryRepository userCardsProgressionHistoryRepository) {
+    public CardsController(ProgressionHistoryService progressionHistoryService, CardsService cardsService, CardsRepository cardsRepository, UserCardsProgressionHistoryRepository userCardsProgressionHistoryRepository) {
         this.cardsService = cardsService;
         this.cardsRepository = cardsRepository;
+        this.progressionHistoryService = progressionHistoryService;
     }
 
     @GetMapping("/{deckId}")
@@ -80,7 +83,7 @@ public class CardsController {
             Card existingCard = cardsRepository.findByIdAndDeck_Groups_LocalUser(cardId, user);
             if (existingCard == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Card not found");
             cardsService.updateCardTimeIntervalByUserDecision(existingCard, configuration);
-            cardsService.updateUserCardsHistory(existingCard);
+            progressionHistoryService.updateUserCardsHistory(existingCard);
             return ResponseEntity.status(HttpStatus.OK).body(CardsMapper.toDto(existingCard));
         } catch (Exception e) {
             e.printStackTrace();

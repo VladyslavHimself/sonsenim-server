@@ -1,4 +1,4 @@
-package com.sonsenim.sonsenimbackend.mappers;
+package com.sonsenim.sonsenimbackend.model.helpers;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
