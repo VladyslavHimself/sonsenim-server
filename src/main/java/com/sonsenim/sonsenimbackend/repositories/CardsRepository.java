@@ -42,4 +42,6 @@ public interface CardsRepository extends JpaRepository<Card, Long> {
     long countByDeck_Groups_IdAndIntervalStrengthBetween(Long id, Float intervalStrengthStart, Float intervalStrengthEnd);
 
     long countByDeck_Groups_IdAndIntervalStrengthGreaterThanEqual(Long id, Float intervalStrength);
+
+    List<Card> deleteByIdAllIgnoreCase(Long id);
 }

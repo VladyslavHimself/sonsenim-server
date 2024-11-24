@@ -45,7 +45,7 @@ public class CardsService {
         return CardsMapper.toCardDTO(cards);
     }
 
-    public void addNewCardToDeck(Long deckId, LocalUser user, CardConfigurationBody cardConfiguration)  {
+    public Card addNewCardToDeck(Long deckId, LocalUser user, CardConfigurationBody cardConfiguration)  {
         Deck deck = decksRepository.findByIdAndGroups_LocalUser(deckId, user);
         Card card = new Card();
         card.setPrimaryWord(cardConfiguration.getPrimaryWord());
@@ -54,6 +54,7 @@ public class CardsService {
         card.setDeck(deck);
 
         cardsRepository.save(card);
+        return card;
     }
 
     public CardDTO updateCard(Long deckId, Long cardId, LocalUser user, CardConfigurationBody cardConfiguration) {
@@ -111,9 +112,10 @@ public class CardsService {
         cardsRepository.save(existingCard);
     }
 
-    public void removeCardFromDeck(LocalUser user, Long deckId, Long cardId) {
+    public Card removeCardFromDeck(LocalUser user, Long deckId, Long cardId) {
         Card card = cardsRepository.findByIdAndDeck_IdAndDeck_Groups_LocalUser(cardId, deckId, user);
         cardsRepository.delete(card);
+        return card;
     }
 
     public long getTotalNumberOfCardsFromGroup(LocalUser user, Long groupId) {

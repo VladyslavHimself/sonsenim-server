@@ -40,21 +40,24 @@ public class CardsController {
     }
 
 
-    // TODO: Add function to add newly created card immediately to card progression in vlow row
+
     @PostMapping("/{deckId}")
     public ResponseEntity<String> addCardToDeck(@AuthenticationPrincipal LocalUser user, @PathVariable Long deckId, @Valid @RequestBody CardConfigurationBody cardConfiguration) {
         try {
-            cardsService.addNewCardToDeck(deckId, user, cardConfiguration);
+            Card addedCard = cardsService.addNewCardToDeck(deckId, user, cardConfiguration);
+            progressionHistoryService.updateUserCardsHistory(addedCard);
             return ResponseEntity.ok().body("Successfully added card to the deck");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add card");
         }
     }
 
+    // TODO: Create annotation for controllers that using `updateUserCardsHistory`;
     @DeleteMapping("/{deckId}/{cardId}")
     public ResponseEntity<String> removeCardFromDeck(@AuthenticationPrincipal LocalUser user, @PathVariable Long deckId, @PathVariable Long cardId) {
         try {
-            cardsService.removeCardFromDeck(user, deckId, cardId);
+            Card deletedCardSnapshot = cardsService.removeCardFromDeck(user, deckId, cardId);
+            progressionHistoryService.updateUserCardsHistory(deletedCardSnapshot);
             return ResponseEntity.ok().body("Successfully removed card from the deck");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to remove card");
