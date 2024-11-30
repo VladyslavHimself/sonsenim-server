@@ -6,8 +6,10 @@ import com.sonsenim.sonsenimbackend.model.helpers.DailyHistoryResponse;
 import com.sonsenim.sonsenimbackend.model.UserCardsProgressionHistory;
 import com.sonsenim.sonsenimbackend.repositories.CardsRepository;
 import com.sonsenim.sonsenimbackend.repositories.UserCardsProgressionHistoryRepository;
+import org.hibernate.type.descriptor.DateTimeUtils;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

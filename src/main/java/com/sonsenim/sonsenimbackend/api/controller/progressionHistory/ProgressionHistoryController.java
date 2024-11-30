@@ -1,6 +1,8 @@
 package com.sonsenim.sonsenimbackend.api.controller.progressionHistory;
 
 
+import com.sonsenim.sonsenimbackend.mappers.UserCardsProgressionHistoryMapper;
+import com.sonsenim.sonsenimbackend.model.dto.UserCardsProgressionHistoryDTO;
 import com.sonsenim.sonsenimbackend.model.helpers.DailyHistoryResponse;
 import com.sonsenim.sonsenimbackend.model.LocalUser;
 import com.sonsenim.sonsenimbackend.model.UserCardsProgressionHistory;
@@ -22,14 +24,16 @@ import java.util.Map;
 public class ProgressionHistoryController {
 
     private final ProgressionHistoryService progressionHistoryService;
+    private final UserCardsProgressionHistoryMapper userCardsProgressionHistoryMapper;
 
-    public ProgressionHistoryController(ProgressionHistoryService progressionHistoryService) {
+    public ProgressionHistoryController(ProgressionHistoryService progressionHistoryService, UserCardsProgressionHistoryMapper userCardsProgressionHistoryMapper) {
         this.progressionHistoryService = progressionHistoryService;
+        this.userCardsProgressionHistoryMapper = userCardsProgressionHistoryMapper;
     }
 
 
     @GetMapping("/{groupId}")
-    public ResponseEntity<List<DailyHistoryResponse>> getCardsIntervalHistory(@AuthenticationPrincipal LocalUser user, @PathVariable Long groupId) {
+    public ResponseEntity<List<UserCardsProgressionHistoryDTO>> getCardsIntervalHistory(@AuthenticationPrincipal LocalUser user, @PathVariable Long groupId) {
         LocalDateTime startDay = LocalDateTime.now().minusDays(7);
         LocalDateTime endDay = LocalDateTime.now().plusDays(1);
 
@@ -42,6 +46,7 @@ public class ProgressionHistoryController {
                 historyMap
         );
 
-        return ResponseEntity.ok(fulfilledHistory);
+        List<UserCardsProgressionHistoryDTO> historyList = userCardsProgressionHistoryMapper.toStatsDTO(fulfilledHistory);
+        return ResponseEntity.ok(historyList);
     }
 }

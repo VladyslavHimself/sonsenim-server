@@ -2,58 +2,49 @@ package com.sonsenim.sonsenimbackend.model.dto;
 import java.time.LocalDate;
 
 public class UserCardsProgressionHistoryDTO {
-    private String groupId;
-    private LocalDate date;
-    private int vlow;
-    private int low;
-    private int mid;
-    private int high;
+    private String date;
+    private int veryLowIndicationCount;
+    private int lowIndicationCount;
+    private int midIndicationCount;
+    private int highIndicationCount;
 
-    public LocalDate getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
-    public int getVlow() {
-        return vlow;
+    public int getVeryLowIndicationCount() {
+        return veryLowIndicationCount;
     }
 
-    public void setVlow(int vlow) {
-        this.vlow = vlow;
+    public void setVeryLowIndicationCount(int veryLowIndicationCount) {
+        this.veryLowIndicationCount = veryLowIndicationCount;
     }
 
-    public int getLow() {
-        return low;
+    public int getLowIndicationCount() {
+        return lowIndicationCount;
     }
 
-    public void setLow(int low) {
-        this.low = low;
+    public void setLowIndicationCount(int lowIndicationCount) {
+        this.lowIndicationCount = lowIndicationCount;
     }
 
-    public int getMid() {
-        return mid;
+    public int getMidIndicationCount() {
+        return midIndicationCount;
     }
 
-    public void setMid(int mid) {
-        this.mid = mid;
+    public void setMidIndicationCount(int midIndicationCount) {
+        this.midIndicationCount = midIndicationCount;
     }
 
-    public int getHigh() {
-        return high;
+    public int getHighIndicationCount() {
+        return highIndicationCount;
     }
 
-    public void setHigh(int high) {
-        this.high = high;
-    }
-
-    public String getGroupId() {
-        return groupId;
-    }
-
-    public void setGroupId(String groupId) {
-        this.groupId = groupId;
+    public void setHighIndicationCount(int highIndicationCount) {
+        this.highIndicationCount = highIndicationCount;
     }
 }
